@@ -1,0 +1,758 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Интерактивный справочник ТИК по компенсаторам для менеджера">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <meta name="yandex" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%2317324d'/%3E%3Cpath d='M10 20h12l4 8 6-16 6 32 6-16 4-8h6' fill='none' stroke='%23fff' stroke-width='5' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <title>Компенсаторы: рабочий маршрут менеджера ТИК</title>
+  <style>
+    :root {
+      --navy: #17324d;
+      --navy-2: #244965;
+      --red: #b52c32;
+      --red-dark: #8e2026;
+      --orange: #c86f1a;
+      --paper: #f3f0e9;
+      --white: #ffffff;
+      --ink: #17212b;
+      --muted: #596675;
+      --line: #cbd3d9;
+      --soft: #e8edf0;
+      --green: #2f6a4f;
+      --max: 1240px;
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 88px; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font: 16px/1.55 Arial, Helvetica, sans-serif;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0 0 auto 0;
+      height: 3px;
+      background: var(--red);
+      z-index: 100;
+    }
+    img { display: block; max-width: 100%; }
+    button, input, textarea, select { font: inherit; }
+    button { color: inherit; }
+    a { color: var(--navy-2); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    a:hover { color: var(--red-dark); }
+    :focus-visible { outline: 3px solid #e1a25d; outline-offset: 3px; }
+    .skip-link {
+      position: fixed;
+      top: -80px;
+      left: 16px;
+      padding: 10px 14px;
+      background: var(--white);
+      border: 2px solid var(--navy);
+      z-index: 200;
+    }
+    .skip-link:focus { top: 12px; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(243, 240, 233, .97);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(8px);
+    }
+    .topbar-inner {
+      max-width: var(--max);
+      min-height: 72px;
+      margin: auto;
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 205px;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .brand img { width: 54px; height: 42px; object-fit: contain; }
+    .brand span { font-weight: 800; line-height: 1.08; }
+    .brand small { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; font-weight: 500; }
+    .nav { display: flex; align-items: center; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+    .nav::-webkit-scrollbar { display: none; }
+    .nav a {
+      flex: 0 0 auto;
+      padding: 9px 10px;
+      border-bottom: 2px solid transparent;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .nav a:hover, .nav a[aria-current="true"] { color: var(--navy); border-color: var(--red); }
+
+    .wrap { max-width: var(--max); margin: auto; padding: 0 24px; }
+    main { overflow: hidden; }
+    section { padding: 88px 0; border-bottom: 1px solid var(--line); }
+    .section-head { max-width: 780px; margin-bottom: 34px; }
+    .section-index { color: var(--red); font-size: 13px; font-weight: 800; letter-spacing: .08em; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { max-width: 780px; margin-bottom: 20px; color: var(--navy); font-size: clamp(36px, 5vw, 58px); line-height: 1.02; letter-spacing: -.035em; }
+    h2 { margin-bottom: 14px; color: var(--navy); font-size: clamp(30px, 3.5vw, 44px); line-height: 1.08; letter-spacing: -.025em; }
+    h3 { margin-bottom: 10px; color: var(--navy); font-size: 21px; line-height: 1.25; }
+    .lead { max-width: 720px; color: #344454; font: 20px/1.5 Georgia, "Times New Roman", serif; }
+    .muted { color: var(--muted); }
+
+    .hero { padding-top: 54px; background: var(--white); }
+    .hero-grid { display: grid; grid-template-columns: minmax(0, .88fr) minmax(460px, 1.12fr); gap: 42px; align-items: center; }
+    .hero-note { margin-bottom: 18px; color: var(--red-dark); font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+    .hero-route { margin: 30px 0 0; padding: 0; list-style: none; counter-reset: route; border-top: 1px solid var(--line); }
+    .hero-route li {
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--line);
+      counter-increment: route;
+    }
+    .hero-route li::before {
+      content: counter(route, decimal-leading-zero);
+      color: var(--red);
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+    .hero-route strong { display: block; color: var(--navy); }
+    .hero-route span { color: var(--muted); font-size: 14px; }
+    .hero-figure { margin: 0; border: 1px solid var(--line); background: var(--paper); }
+    .hero-figure img { width: 100%; aspect-ratio: 12 / 7; object-fit: cover; }
+    figcaption { padding: 12px 16px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); }
+    .legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 12px; font-size: 13px; }
+    .legend span { display: inline-flex; align-items: center; gap: 7px; }
+    .legend i { width: 15px; height: 15px; border: 3px solid; }
+    .legend .confirmed i { border-color: var(--red); }
+    .legend .inspect i { border-color: var(--orange); }
+
+    .glossary { padding: 56px 0; background: #e8edf0; }
+    .glossary-head { max-width: 820px; margin-bottom: 24px; }
+    .glossary-head h2 { font-size: clamp(28px, 3vw, 38px); }
+    .glossary-grid { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 2px solid var(--navy); }
+    .glossary-item { display: grid; grid-template-columns: 68px 1fr; gap: 12px; padding: 15px 16px 15px 0; border-bottom: 1px solid var(--line); }
+    .glossary-item:nth-child(3n+2), .glossary-item:nth-child(3n+3) { padding-left: 16px; border-left: 1px solid var(--line); }
+    .glossary-item dt { color: var(--red-dark); font-weight: 900; }
+    .glossary-item dd { margin: 0; }
+
+    .tabs { display: grid; grid-template-columns: 250px 1fr; border: 1px solid var(--line); background: var(--white); }
+    .tab-list { padding: 12px; border-right: 1px solid var(--line); background: #edf1f3; }
+    .tab-button {
+      width: 100%;
+      padding: 13px 14px;
+      border: 0;
+      border-left: 3px solid transparent;
+      background: transparent;
+      text-align: left;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .tab-button:hover { background: var(--white); }
+    .tab-button[aria-selected="true"] { color: var(--red-dark); background: var(--white); border-left-color: var(--red); }
+    .tab-panel { min-height: 300px; padding: 30px 34px; }
+    .tab-panel[hidden] { display: none; }
+    .fact-line { display: grid; grid-template-columns: 170px 1fr; gap: 18px; padding: 13px 0; border-top: 1px solid var(--line); }
+    .fact-line strong { color: var(--navy); }
+    .do-not { margin-top: 22px; padding: 17px 18px; border-left: 4px solid var(--red); background: #fbefef; }
+
+    .atlas-shell { display: grid; grid-template-columns: 285px minmax(0, 1fr); gap: 20px; align-items: start; }
+    .atlas-controls { position: sticky; top: 92px; }
+    .filter-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 13px; }
+    .filter-button, .sector-button {
+      border: 1px solid var(--line);
+      background: var(--white);
+      cursor: pointer;
+    }
+    .filter-button { padding: 7px 10px; color: var(--muted); font-size: 12px; font-weight: 700; }
+    .filter-button[aria-pressed="true"] { color: var(--white); background: var(--navy); border-color: var(--navy); }
+    .sector-list { display: grid; gap: 6px; }
+    .sector-button {
+      width: 100%;
+      padding: 12px 13px;
+      display: grid;
+      grid-template-columns: 27px 1fr;
+      align-items: center;
+      gap: 8px;
+      text-align: left;
+      font-weight: 700;
+    }
+    .sector-button span:first-child { color: var(--red); font-size: 12px; font-variant-numeric: tabular-nums; }
+    .sector-button:hover { border-color: var(--navy-2); }
+    .sector-button[aria-current="true"] { color: var(--white); background: var(--navy); border-color: var(--navy); }
+    .sector-button[hidden] { display: none; }
+    .atlas-detail { border: 1px solid var(--line); background: var(--white); }
+    .atlas-media { position: relative; border-bottom: 1px solid var(--line); background: #e9edef; }
+    .atlas-media img { width: 100%; aspect-ratio: 12 / 7; object-fit: cover; }
+    .atlas-title { padding: 24px 28px 0; }
+    .atlas-title p { margin-bottom: 8px; color: var(--red-dark); font-size: 13px; font-weight: 800; }
+    .atlas-title h3 { font-size: 30px; }
+    .atlas-grid { display: grid; grid-template-columns: 1fr 1fr; padding: 10px 28px 28px; }
+    .atlas-item { padding: 18px 22px 18px 0; border-top: 1px solid var(--line); }
+    .atlas-item:nth-child(even) { padding-left: 22px; border-left: 1px solid var(--line); }
+    .atlas-item dt { margin-bottom: 6px; color: var(--muted); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
+    .atlas-item dd { margin: 0; }
+    .alert-text { color: var(--red-dark); font-weight: 700; }
+    .query-list { margin: 0; padding-left: 18px; }
+    .query-list li + li { margin-top: 5px; }
+
+    .search-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; }
+    .search-path { margin: 0; padding: 0; list-style: none; counter-reset: search; }
+    .search-path li { position: relative; padding: 0 0 26px 58px; counter-increment: search; }
+    .search-path li:not(:last-child)::after { content: ""; position: absolute; top: 37px; bottom: 4px; left: 20px; width: 1px; background: var(--line); }
+    .search-path li::before {
+      content: counter(search);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      color: var(--white);
+      background: var(--navy);
+      font-weight: 800;
+    }
+    .search-path strong { display: block; margin-bottom: 4px; color: var(--navy); font-size: 18px; }
+    .signal-board { padding: 24px; border: 1px solid var(--line); background: var(--white); }
+    .signal-board h3 { padding-bottom: 12px; border-bottom: 2px solid var(--navy); }
+    .signal-group { display: grid; grid-template-columns: 125px 1fr; gap: 16px; padding: 15px 0; border-bottom: 1px solid var(--line); }
+    .signal-group:last-child { border-bottom: 0; }
+    .signal-group strong { color: var(--navy); }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { padding: 4px 8px; background: var(--soft); font-size: 13px; }
+
+    .role-table { width: 100%; border-collapse: collapse; background: var(--white); }
+    .role-table th, .role-table td { padding: 15px 16px; border: 1px solid var(--line); vertical-align: top; text-align: left; }
+    .role-table th { color: var(--white); background: var(--navy); font-size: 13px; }
+    .role-table td:first-child { color: var(--navy); font-weight: 800; }
+    .role-table tr:nth-child(even) td { background: #f6f8f9; }
+    .role-priority { display: inline-block; min-width: 24px; margin-right: 7px; color: var(--red-dark); font-weight: 900; }
+
+    .call-grid { display: grid; grid-template-columns: .85fr 1.15fr; gap: 34px; }
+    .script { padding: 26px; color: var(--white); background: var(--navy); }
+    .script h3 { color: var(--white); }
+    .script blockquote { margin: 20px 0 0; padding: 18px 0 0; border-top: 1px solid rgba(255,255,255,.35); font: 18px/1.55 Georgia, "Times New Roman", serif; }
+    .script strong { color: #ffd7d8; }
+    .checklist { border: 1px solid var(--line); background: var(--white); }
+    .checklist-head { padding: 18px 20px; display: flex; justify-content: space-between; gap: 18px; border-bottom: 1px solid var(--line); }
+    .progress-text { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+    .progress-track { height: 5px; background: var(--soft); }
+    .progress-fill { width: 0; height: 100%; background: var(--green); transition: width .15s ease; }
+    .check-item { display: grid; grid-template-columns: 26px 1fr; gap: 9px; padding: 12px 20px; border-bottom: 1px solid var(--line); cursor: pointer; }
+    .check-item:last-child { border-bottom: 0; }
+    .check-item input { width: 18px; height: 18px; accent-color: var(--green); }
+    .check-item span { line-height: 1.35; }
+
+    .brief-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+    .brief-form { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .field { display: grid; gap: 6px; }
+    .field.full { grid-column: 1 / -1; }
+    label { color: var(--navy); font-size: 13px; font-weight: 800; }
+    input, textarea, select {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid #9daab5;
+      border-radius: 0;
+      color: var(--ink);
+      background: var(--white);
+    }
+    textarea { min-height: 82px; resize: vertical; }
+    input:focus, textarea:focus, select:focus { border-color: var(--navy); }
+    .brief-output { position: sticky; top: 92px; border: 1px solid var(--line); background: var(--white); }
+    .output-head { padding: 16px 18px; display: flex; justify-content: space-between; gap: 12px; align-items: center; color: var(--white); background: var(--navy); }
+    .output-head h3 { margin: 0; color: var(--white); font-size: 18px; }
+    .status { padding: 4px 8px; color: var(--ink); background: #ffe2a9; font-size: 12px; font-weight: 800; }
+    .status.ready { color: #143e2d; background: #cbe7d8; }
+    #briefText { min-height: 420px; margin: 0; padding: 20px; white-space: pre-wrap; font: 14px/1.55 "SFMono-Regular", Consolas, monospace; }
+    .output-actions { padding: 14px 18px; display: flex; gap: 8px; border-top: 1px solid var(--line); }
+    .button {
+      min-height: 42px;
+      padding: 9px 15px;
+      border: 1px solid var(--navy);
+      background: transparent;
+      cursor: pointer;
+      font-weight: 800;
+    }
+    .button.primary { color: var(--white); background: var(--red); border-color: var(--red); }
+    .button.primary:hover { background: var(--red-dark); }
+    .button.secondary:hover { color: var(--white); background: var(--navy); }
+    .copy-note { min-height: 20px; margin: 8px 0 0; color: var(--green); font-size: 13px; }
+
+    .boundary { padding: 22px; border-left: 4px solid var(--red); background: var(--white); }
+    footer { padding: 34px 0 50px; color: var(--muted); font-size: 13px; }
+    footer .wrap { display: flex; justify-content: space-between; gap: 24px; }
+
+    @media (max-width: 980px) {
+      .topbar-inner { gap: 14px; }
+      .brand { min-width: 170px; }
+      .hero-grid, .search-grid, .call-grid, .brief-layout { grid-template-columns: 1fr; }
+      .hero-grid { gap: 30px; }
+      .atlas-shell { grid-template-columns: 230px minmax(0, 1fr); }
+      .brief-output { position: static; }
+    }
+    @media (max-width: 760px) {
+      html { scroll-padding-top: 118px; }
+      .topbar-inner { padding: 8px 16px 0; display: block; }
+      .brand { margin-bottom: 6px; }
+      .brand img { width: 44px; height: 34px; }
+      .nav { margin: 0 -16px; padding: 0 12px 6px; }
+      .wrap { padding: 0 16px; }
+      section { padding: 62px 0; }
+      .hero { padding-top: 36px; }
+      .hero-grid { grid-template-columns: 1fr; }
+      .tabs { grid-template-columns: 1fr; }
+      .tab-list { display: flex; gap: 4px; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+      .tab-button { width: auto; flex: 0 0 auto; border-left: 0; border-bottom: 3px solid transparent; }
+      .tab-button[aria-selected="true"] { border-bottom-color: var(--red); }
+      .tab-panel { padding: 24px 20px; }
+      .fact-line { grid-template-columns: 1fr; gap: 4px; }
+      .atlas-shell { grid-template-columns: 1fr; }
+      .atlas-controls { position: static; }
+      .sector-list { grid-template-columns: 1fr 1fr; }
+      .atlas-title { padding: 20px 18px 0; }
+      .atlas-title h3 { font-size: 25px; }
+      .atlas-grid { grid-template-columns: 1fr; padding: 8px 18px 22px; }
+      .atlas-item, .atlas-item:nth-child(even) { padding: 15px 0; border-left: 0; }
+      .glossary-grid { grid-template-columns: 1fr 1fr; }
+      .glossary-item, .glossary-item:nth-child(3n+2), .glossary-item:nth-child(3n+3) { padding: 14px 12px 14px 0; border-left: 0; }
+      .glossary-item:nth-child(even) { padding-left: 12px; border-left: 1px solid var(--line); }
+      .role-table { display: block; overflow-x: auto; }
+      .brief-form { grid-template-columns: 1fr; }
+      .field.full { grid-column: auto; }
+      footer .wrap { display: block; }
+    }
+    @media (max-width: 460px) {
+      h1 { font-size: 36px; }
+      h2 { font-size: 30px; }
+      .lead { font-size: 18px; }
+      .glossary-grid { grid-template-columns: 1fr; }
+      .glossary-item, .glossary-item:nth-child(even) { padding: 13px 0; border-left: 0; }
+      .sector-list { grid-template-columns: 1fr; }
+      .signal-group { grid-template-columns: 1fr; gap: 5px; }
+      .checklist-head { display: block; }
+      .output-head { align-items: flex-start; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+    }
+    @media print {
+      .topbar, .filter-row, .sector-list, .output-actions, .skip-link { display: none !important; }
+      body { background: white; font-size: 11pt; }
+      section { padding: 28px 0; break-inside: avoid; }
+      .hero-grid, .atlas-shell, .search-grid, .call-grid, .brief-layout, .glossary-grid { display: block; }
+      .atlas-detail, .brief-output { margin-top: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">К содержанию</a>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#top" aria-label="ТИК, в начало справочника">
+        <img src="assets/tik-logo.png" alt="Логотип завода ТИК">
+        <span>Компенсаторы<small>рабочий маршрут менеджера</small></span>
+      </a>
+      <nav class="nav" aria-label="Разделы справочника">
+        <a href="#glossary">Словарь</a>
+        <a href="#basics">Основы</a>
+        <a href="#sectors">Сферы</a>
+        <a href="#search">Как искать</a>
+        <a href="#contacts">Кому звонить</a>
+        <a href="#call">Звонок</a>
+        <a href="#brief">Карточка</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="wrap hero-grid">
+        <div>
+          <p class="hero-note">Внутреннее обучение ТИК · без инженерных догадок</p>
+          <h1>От оборудования к правильному контакту</h1>
+          <p class="lead">Один справочник, чтобы понять узел, найти компанию, выйти на нужного человека и передать инженеру проверяемые данные.</p>
+          <ol class="hero-route">
+            <li><div><strong>Узнать оборудование</strong><span>Тип, модель, узел, среда и режим.</span></div></li>
+            <li><div><strong>Найти точку компенсации</strong><span>Что движется и почему.</span></div></li>
+            <li><div><strong>Определить роль</strong><span>Эксплуатация, сервис, проектировщик, изготовитель или снабжение.</span></div></li>
+            <li><div><strong>Собрать исходные данные</strong><span>Не подменять отсутствующее догадкой.</span></div></li>
+            <li><div><strong>Передать инженеру</strong><span>Факты, документы, недостающие данные и срок.</span></div></li>
+          </ol>
+        </div>
+        <figure class="hero-figure">
+          <img src="assets/02-gpu-photo.png" alt="Газопоршневая установка Cat G3520H: оранжевым отмечена зона выхода турбокомпрессора, справа красным выделен пример металлического компенсатора">
+          <figcaption>ГПУ и зона поиска выхлопного узла. Фото оборудования не доказывает совместимость компенсатора.</figcaption>
+          <div class="legend" aria-label="Легенда разметки">
+            <span class="confirmed"><i aria-hidden="true"></i> видимый или подтверждённый узел</span>
+            <span class="inspect"><i aria-hidden="true"></i> зона проверки</span>
+          </div>
+        </figure>
+      </div>
+    </section>
+
+    <section class="glossary" id="glossary">
+      <div class="wrap">
+        <div class="glossary-head">
+          <p class="section-index">ПЕРЕД НАЧАЛОМ · КОРОТКИЙ СЛОВАРЬ</p>
+          <h2>Сокращения, которые встретятся в документах и разговорах</h2>
+          <p>На сайте всё объясняется по-русски. Этот словарь нужен, чтобы узнавать обозначения на шильдиках, чертежах и в перечнях деталей.</p>
+        </div>
+        <dl class="glossary-grid">
+          <div class="glossary-item"><dt>ДГУ</dt><dd>дизель-генераторная установка</dd></div>
+          <div class="glossary-item"><dt>ГПУ</dt><dd>газопоршневая установка</dd></div>
+          <div class="glossary-item"><dt>ГТУ</dt><dd>газотурбинная установка</dd></div>
+          <div class="glossary-item"><dt>ПГУ</dt><dd>парогазовая установка</dd></div>
+          <div class="glossary-item"><dt>КУ</dt><dd>котёл-утилизатор, использующий тепло выхлопных газов</dd></div>
+          <div class="glossary-item"><dt>СПГ</dt><dd>сжиженный природный газ</dd></div>
+          <div class="glossary-item"><dt>DN</dt><dd>обозначение номинального размера трубы или присоединения</dd></div>
+          <div class="glossary-item"><dt>S/N</dt><dd>серийный номер оборудования</dd></div>
+          <div class="glossary-item"><dt>P/N</dt><dd>каталожный номер детали у изготовителя</dd></div>
+          <div class="glossary-item"><dt>OEM</dt><dd>изготовитель исходного оборудования</dd></div>
+          <div class="glossary-item"><dt>EPC</dt><dd>организация, отвечающая за проектирование, закупку и строительство объекта</dd></div>
+          <div class="glossary-item"><dt>BOM</dt><dd>заводской перечень деталей и узлов комплектации</dd></div>
+          <div class="glossary-item"><dt>P&amp;ID</dt><dd>схема трубопроводов, арматуры и приборов</dd></div>
+          <div class="glossary-item"><dt>GA</dt><dd>чертёж общего вида и расположения оборудования</dd></div>
+          <div class="glossary-item"><dt>HRSG</dt><dd>котёл-утилизатор за газовой турбиной</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section id="basics">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="section-index">01 · ОСНОВЫ</p>
+          <h2>Что нужно понять до первого звонка</h2>
+          <p class="lead">Менеджер определяет контекст и полноту данных. Конструкцию, материал и ресурс подтверждает инженер.</p>
+        </div>
+        <div class="tabs">
+          <div class="tab-list" role="tablist" aria-label="Базовые темы">
+            <button class="tab-button" role="tab" aria-selected="true" aria-controls="tab-purpose" id="tab-purpose-button">Зачем нужен</button>
+            <button class="tab-button" role="tab" aria-selected="false" aria-controls="tab-motion" id="tab-motion-button">Что движется</button>
+            <button class="tab-button" role="tab" aria-selected="false" aria-controls="tab-family" id="tab-family-button">Какие бывают</button>
+            <button class="tab-button" role="tab" aria-selected="false" aria-controls="tab-boundary" id="tab-boundary-button">Граница менеджера</button>
+          </div>
+          <div>
+            <div class="tab-panel" role="tabpanel" id="tab-purpose" aria-labelledby="tab-purpose-button">
+              <h3>Компенсатор принимает заданное движение</h3>
+              <p>При нагреве труба или газоход удлиняются; машина вибрирует; опоры и корпуса смещаются. Гибкий узел допускает рассчитанное относительное перемещение, но не заменяет опоры и расчёт системы.</p>
+              <div class="fact-line"><strong>Рабочая формула</strong><span>Оборудование → место → причина движения → среда и режим → геометрия → документы → инженер.</span></div>
+              <div class="do-not"><strong>Не говорить:</strong> «подойдёт только потому, что совпал размер DN», «уберёт любую вибрацию», «можно растянуть при монтаже».</div>
+            </div>
+            <div class="tab-panel" role="tabpanel" id="tab-motion" aria-labelledby="tab-motion-button" hidden>
+              <h3>Три направления и один опасный случай</h3>
+              <div class="fact-line"><strong>Осевое</strong><span>Концы сближаются или расходятся вдоль оси.</span></div>
+              <div class="fact-line"><strong>Сдвиговое</strong><span>Один конец смещается поперёк, торцы остаются параллельными.</span></div>
+              <div class="fact-line"><strong>Угловое</strong><span>Оси концов образуют угол; шарнир или кардан направляет движение.</span></div>
+              <div class="do-not"><strong>Кручение не равно угловому движению.</strong> Поворот вокруг продольной оси — отдельный красный флаг.</div>
+            </div>
+            <div class="tab-panel" role="tabpanel" id="tab-family" aria-labelledby="tab-family-button" hidden>
+              <h3>Семейство определяют по задаче и среде, а не по цвету</h3>
+              <div class="fact-line"><strong>Металлический</strong><span>Гофрированный сильфон для трубопроводов, аппаратов и выхлопа.</span></div>
+              <div class="fact-line"><strong>Резиновый</strong><span>Гибкая вставка на насосной и водяной обвязке; важна совместимость эластомера.</span></div>
+              <div class="fact-line"><strong>Тканевый</strong><span>Мягкий пакет на рамах газохода большого сечения.</span></div>
+              <div class="fact-line"><strong>Линзовый</strong><span>Толстостенный сварной элемент аппарата или теплообменника.</span></div>
+            </div>
+            <div class="tab-panel" role="tabpanel" id="tab-boundary" aria-labelledby="tab-boundary-button" hidden>
+              <h3>Менеджер не подбирает изделие</h3>
+              <p>Его результат — квалифицированный запрос с понятным местом узла, режимом, документами и списком пропусков.</p>
+              <div class="fact-line"><strong>Можно</strong><span>Уточнить тип оборудования, место, среду, режим, размеры, маркировку, срок и статус данных.</span></div>
+              <div class="fact-line"><strong>Нельзя</strong><span>Обещать материал, слои, ресурс, расчётные перемещения, совместимость и цену без проверки.</span></div>
+              <div class="do-not"><strong>Если данных нет:</strong> пишем «не найдено в доступных документах» и указываем, кто и когда их предоставит.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="sectors">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="section-index">02 · СФЕРЫ ПРИМЕНЕНИЯ</p>
+          <h2>Где стоит узел и кто владеет решением</h2>
+          <p class="lead">Выберите сферу. Сайт покажет фото, типичную точку, поисковые сигналы, роль для первого контакта и красный флаг.</p>
+        </div>
+        <div class="atlas-shell">
+          <aside class="atlas-controls" aria-label="Выбор сферы">
+            <div class="filter-row" aria-label="Фильтр сфер">
+              <button class="filter-button" data-filter="all" aria-pressed="true">Все</button>
+              <button class="filter-button" data-filter="energy" aria-pressed="false">Энергетика</button>
+              <button class="filter-button" data-filter="industry" aria-pressed="false">Промышленность</button>
+              <button class="filter-button" data-filter="special" aria-pressed="false">Спецсреды</button>
+            </div>
+            <div class="sector-list" id="sectorList"></div>
+          </aside>
+          <article class="atlas-detail" aria-live="polite">
+            <div class="atlas-media"><img id="sectorImage" src="assets/02-gpu-photo.png" alt="Газопоршневая установка Cat G3520H и зона выхода турбокомпрессора"></div>
+            <div class="atlas-title"><p id="sectorCategory"></p><h3 id="sectorTitle"></h3></div>
+            <dl class="atlas-grid">
+              <div class="atlas-item"><dt>Где искать узел</dt><dd id="sectorPlace"></dd></div>
+              <div class="atlas-item"><dt>Зачем он нужен</dt><dd id="sectorNeed"></dd></div>
+              <div class="atlas-item"><dt>Кому звонить сначала</dt><dd id="sectorWho"></dd></div>
+              <div class="atlas-item"><dt>Что искать в открытых данных</dt><dd><ul class="query-list" id="sectorQueries"></ul></dd></div>
+              <div class="atlas-item"><dt>Первые вопросы</dt><dd><ul class="query-list" id="sectorQuestions"></ul></dd></div>
+              <div class="atlas-item"><dt>Красный флаг</dt><dd class="alert-text" id="sectorAlert"></dd></div>
+            </dl>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="search">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="section-index">03 · КАК ИСКАТЬ</p>
+          <h2>Ищем не «компенсаторы», а парк оборудования и причины замены</h2>
+          <p class="lead">Потребность часто видна раньше закупки: в парке машин, капремонте, реконструкции, отказе узла или новом проекте.</p>
+        </div>
+        <div class="search-grid">
+          <ol class="search-path">
+            <li><strong>Найдите парк</strong><span>Списки электростанций, металлургических площадок, флота, компрессорных станций, терминалов и установок со сжиженным природным газом, лабораторий.</span></li>
+            <li><strong>Свяжите модель с типовым узлом</strong><span>Не для подбора, а для понимания, где спрашивать: выхлоп, газоход, кожух, обвязка, сильфон ввода.</span></li>
+            <li><strong>Поймайте сигнал потребности</strong><span>Останов, дефектовка, утечка, трещина, повреждённая гофра, модернизация, строительство, закупка ЗИП.</span></li>
+            <li><strong>Проверьте роль компании</strong><span>Эксплуатант знает проблему; сервис видит дефект; проектировщик знает схему и расчётные условия; изготовитель оборудования — заводскую комплектацию и перечень деталей; снабжение оформляет покупку.</span></li>
+            <li><strong>Начните с технического контакта</strong><span>При замене — ремонт или сервис; при новом проекте — проектировщик, генеральный подрядчик или изготовитель оборудования; при аварии — эксплуатация и главный механик.</span></li>
+          </ol>
+          <div class="signal-board">
+            <h3>Поисковая доска</h3>
+            <div class="signal-group"><strong>Оборудование</strong><div class="chips"><span class="chip">модель двигателя</span><span class="chip">котёл-утилизатор</span><span class="chip">печь</span><span class="chip">компрессор</span></div></div>
+            <div class="signal-group"><strong>Узел</strong><div class="chips"><span class="chip">выхлопной газоход</span><span class="chip">гибкая вставка</span><span class="chip">сильфон</span><span class="chip">тканевый компенсатор</span></div></div>
+            <div class="signal-group"><strong>Событие</strong><div class="chips"><span class="chip">капитальный ремонт</span><span class="chip">дефектовка</span><span class="chip">модернизация</span><span class="chip">замена газохода</span></div></div>
+            <div class="signal-group"><strong>Проблема</strong><div class="chips"><span class="chip">трещина</span><span class="chip">утечка</span><span class="chip">прогар</span><span class="chip">вибрация</span><span class="chip">повреждение гофра</span></div></div>
+            <div class="signal-group"><strong>Документ</strong><div class="chips"><span class="chip">опросный лист</span><span class="chip">техническое задание</span><span class="chip">перечень деталей</span><span class="chip">схема трубопроводов</span><span class="chip">дефектная ведомость</span></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contacts">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="section-index">04 · КОМУ ЗВОНИТЬ</p>
+          <h2>Два контакта: технический и формальный</h2>
+          <p class="lead">Лицо, которое понимает дефект и чертёж, и лицо, которое оформляет покупку, часто не совпадают.</p>
+        </div>
+        <table class="role-table">
+          <thead><tr><th>Приоритет</th><th>Роль</th><th>Что знает</th><th>Когда звонить</th><th>Что получить</th></tr></thead>
+          <tbody>
+            <tr><td><span class="role-priority">01</span>при замене</td><td>Главный механик, ремонт, сервис</td><td>Дефект, дату останова, снятый образец</td><td>Авария, течь, плановая замена</td><td>Фото, маркировку, размеры, акт дефектации</td></tr>
+            <tr><td><span class="role-priority">01</span>при проекте</td><td>Проектировщик, генеральный подрядчик, интегратор</td><td>Трассу, опоры, движения, расчётный режим</td><td>Новая установка, реконструкция</td><td>Схему трубопроводов, чертёж общего вида, изометрию, нагрузки на патрубки</td></tr>
+            <tr><td><span class="role-priority">02</span></td><td>Изготовитель машины или сборщик комплектной установки</td><td>Комплектацию и допуски</td><td>Известны модель, серийный или каталожный номер</td><td>Заводской перечень деталей, каталожный номер, чертёж, допустимые нагрузки</td></tr>
+            <tr><td><span class="role-priority">03</span></td><td>Эксплуатация, начальник участка</td><td>Режим, историю отказов, наработку</td><td>Нужна причина потребности</td><td>Режимы, циклы, фото в рабочем контексте</td></tr>
+            <tr><td><span class="role-priority">04</span></td><td>Снабжение, закупки</td><td>Процедуру, срок, бюджет, договор</td><td>Когда техническая часть уже понятна</td><td>Опросный лист, формат предложения, условия закупки</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="call">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="section-index">05 · ПЕРВЫЙ ЗВОНОК</p>
+          <h2>Разговор начинается с машины, а не с цены</h2>
+        </div>
+        <div class="call-grid">
+          <div class="script">
+            <h3>Готовая формулировка</h3>
+            <blockquote>«Подскажите, на каком оборудовании стоит узел и где именно: до или после какой машины? Это новая установка, плановая замена или дефект? Чтобы не обещать неверное исполнение, нам нужны фото общего вида, маркировка, размеры и режим. После этого инженер скажет, хватает ли данных для оценки».</blockquote>
+            <p><strong>Если спрашивают цену:</strong> «Цена зависит от конструкции, материала, режима и присоединений. Сначала зафиксирую узел и исходные данные».</p>
+          </div>
+          <div class="checklist">
+            <div class="checklist-head"><div><h3>Чек-лист звонка</h3><span class="muted">Отмечайте по ходу разговора</span></div><span class="progress-text" id="checkProgress">0 из 10</span></div>
+            <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
+            <label class="check-item"><input type="checkbox"><span>Названы тип, изготовитель и модель оборудования.</span></label>
+            <label class="check-item"><input type="checkbox"><span>Точка узла показана на фото, схеме трубопроводов, чертеже общего вида или другом чертеже.</span></label>
+            <label class="check-item"><input type="checkbox"><span>Понятна задача: новая установка, замена, авария или модернизация.</span></label>
+            <label class="check-item"><input type="checkbox"><span>Зафиксированы среда, пыль, конденсат и агрессивность.</span></label>
+            <label class="check-item"><input type="checkbox"><span>Есть рабочие и расчётные давление и температура.</span></label>
+            <label class="check-item"><input type="checkbox"><span>Названы движения, величины, сочетание и циклы.</span></label>
+            <label class="check-item"><input type="checkbox"><span>Есть монтажная длина, номинальный размер или сечение и присоединения.</span></label>
+            <label class="check-item"><input type="checkbox"><span>Запрошены серийный и каталожный номера, заводской перечень деталей или чертёж.</span></label>
+            <label class="check-item"><input type="checkbox"><span>Известны количество, срок, комплект документов и испытаний.</span></label>
+            <label class="check-item"><input type="checkbox"><span>Определены технический согласующий и формальный покупатель.</span></label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="brief">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="section-index">06 · ПЕРЕДАЧА ИНЖЕНЕРУ</p>
+          <h2>Соберите карточку запроса</h2>
+          <p class="lead">Данные никуда не отправляются. Сайт формирует текст локально в браузере.</p>
+        </div>
+        <div class="brief-layout">
+          <form class="brief-form" id="briefForm">
+            <div class="field"><label for="company">Компания</label><input id="company" name="company" autocomplete="organization" placeholder="АО «Пример»"></div>
+            <div class="field"><label for="contact">Контакт и роль</label><input id="contact" name="contact" placeholder="Иван, главный механик"></div>
+            <div class="field"><label for="equipment">Оборудование *</label><input id="equipment" name="equipment" required placeholder="ГПУ, печь, компрессор"></div>
+            <div class="field"><label for="model">Изготовитель, модель, серийный номер</label><input id="model" name="model" placeholder="Cat G3520H; серийный номер запрошен"></div>
+            <div class="field full"><label for="place">Место узла *</label><input id="place" name="place" required placeholder="После турбокомпрессора, перед глушителем"></div>
+            <div class="field"><label for="task">Задача *</label><select id="task" name="task" required><option value="">Выбрать</option><option>Новая установка</option><option>Плановая замена</option><option>Аварийная замена</option><option>Модернизация</option><option>Ремонт</option></select></div>
+            <div class="field"><label for="deadline">Срок и количество</label><input id="deadline" name="deadline" placeholder="2 шт., останов 15.11"></div>
+            <div class="field full"><label for="medium">Среда</label><input id="medium" name="medium" placeholder="Выхлопной газ; состав и конденсат уточняются"></div>
+            <div class="field"><label for="temperature">Температура</label><input id="temperature" name="temperature" placeholder="Рабочая / расчётная, °C"></div>
+            <div class="field"><label for="pressure">Давление или вакуум</label><input id="pressure" name="pressure" placeholder="Рабочее / расчётное"></div>
+            <div class="field full"><label for="movement">Движения, циклы, вибрация</label><textarea id="movement" name="movement" placeholder="Осевое, сдвиговое, угловое; величины и циклы"></textarea></div>
+            <div class="field full"><label for="geometry">Геометрия и присоединения</label><textarea id="geometry" name="geometry" placeholder="Номинальный размер или сечение, монтажная длина, фланцы, отверстия, патрубки"></textarea></div>
+            <div class="field full"><label for="documents">Полученные документы и фото</label><textarea id="documents" name="documents" placeholder="Общий вид, торец, шильдик, дефект, чертёж, перечень деталей, схема трубопроводов"></textarea></div>
+            <div class="field full"><label for="missing">Чего не хватает и кто даст</label><textarea id="missing" name="missing" placeholder="Перемещения запрошены у проектировщика до 05.10"></textarea></div>
+          </form>
+          <div class="brief-output">
+            <div class="output-head"><h3>Карточка для инженера</h3><span class="status" id="briefStatus">Неполно</span></div>
+            <pre id="briefText" aria-live="polite"></pre>
+            <div class="output-actions"><button class="button primary" type="button" id="copyBrief">Скопировать</button><button class="button secondary" type="button" id="clearBrief">Очистить</button></div>
+            <p class="copy-note" id="copyNote" role="status"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer><div class="wrap"><span>ТИК · интерактивный справочник для внутреннего обучения</span><span>Версия 28.09.2026</span></div></footer>
+
+  <script>
+    const sectors = [
+      {id:'dgu', n:'01', title:'ДГУ', category:'energy', categoryLabel:'Энергетика · дизель-генератор', image:'assets/01-dgu-photo.png', alt:'Дизель-генератор: оранжевым отмечена зона выхода двигателя, справа красным пример компенсатора', place:'Выход турбокомпрессора, перед глушителем или жёстким газоходом; внутренние сильфонные узлы выпускного коллектора — только по заводскому перечню деталей.', need:'Развязать вибрирующий двигатель и горячий газоход; воспринять тепловое удлинение.', who:'Сервис дизель-генераторной установки или главный механик; для новой станции — сборщик комплектной установки или генеральный подрядчик.', queries:['модель двигателя + выхлоп', 'капремонт дизель-генератора', 'замена глушителя или газохода'], questions:['Какой серийный номер двигателя и всей установки?', 'Где опирается глушитель?', 'Каковы температура, номинальный размер, длина и присоединения?'], alert:'Не подбирать по одному названию модели двигателя.'},
+      {id:'gpu', n:'02', title:'ГПУ', category:'energy', categoryLabel:'Энергетика · газопоршневая станция', image:'assets/02-gpu-photo.png', alt:'Газопоршневая установка Cat G3520H и зона выхода турбокомпрессора', place:'Коллектор, выход турбокомпрессора, перед глушителем или котлом-утилизатором; в контурах теплоутилизации.', need:'Тепловые перемещения и развязка двигателя, глушителя, котла и стационарного газохода.', who:'Эксплуатант или сервис газопоршневой установки; для проекта — интегратор станции и изготовитель котла-утилизатора.', queries:['газопоршневая установка + модель двигателя', 'сервис газопоршневых установок', 'котёл-утилизатор замена'], questions:['Какой серийный номер всей установки и двигателя? Он указан на шильдике или в паспорте.', 'Узел расположен до или после глушителя либо котла-утилизатора?', 'Кто проектировал газоход?'], alert:'Название «гибкое соединение» в перечне опций не подтверждает, что одна и та же деталь подходит ко всем вариантам установки.'},
+      {id:'hex', n:'03', title:'Теплообменники', category:'industry', categoryLabel:'Процессное оборудование', image:'assets/03-heat-exchanger-photo.png', alt:'Трубчатая установка Alfa Laval ViscoLine с выделенными гофрированными участками', place:'Встроенный сильфон кожуха или внешняя обвязка штуцера. Это две разные закупки.', need:'Разность тепловых удлинений кожуха и пучка или снижение нагрузок на штуцер.', who:'Изготовитель теплообменника или ремонтный подрядчик; для внешней обвязки — проектировщик либо эксплуатант.', queries:['ремонт теплообменника', 'замена сильфона кожуха', 'нагрузки на штуцер'], questions:['Узел входит в аппарат или во внешнюю обвязку?', 'Какие среды и перепад температур?', 'Есть ли допустимые нагрузки на штуцер?'], alert:'Не путать сильфон кожуха с компенсатором на трубе.'},
+      {id:'furnace', n:'04', title:'Промышленные печи', category:'industry', categoryLabel:'Металлургия · горячие газоходы', image:'assets/04-furnace-photo.png', alt:'Крупный компенсатор в промышленном газоходе, выделен красным', place:'Воздуховоды горелок, дымовые газоходы, горячие и холодные воздуховоды доменного комплекса.', need:'Принять перемещения крупного газохода при высокой температуре, пыли и абразиве.', who:'Главный механик печи или цеха, ремонтный подрядчик; при реконструкции — проектировщик, генеральный подрядчик или изготовитель печи.', queries:['капремонт печи', 'замена газохода', 'воздухонагреватель ремонт'], questions:['Где точка относительно печи и дымососа?', 'Какова температура газа и стенки?', 'Есть ли пыль, окалина, конденсат или футеровка?'], alert:'Обычный неизолированный сильфон нельзя обещать на горячий абразивный газ.'},
+      {id:'gtu', n:'05', title:'Газотурбинные установки', category:'energy', categoryLabel:'Энергетика · газовая или парогазовая установка', image:'assets/05-gas-turbine-photo.png', alt:'Парогазовая установка и крупный план тканевого компенсатора котла-утилизатора', place:'Выхлопной диффузор, тракт между газовой турбиной и котлом-утилизатором, кожух и проходки котла.', need:'Развязать машину и котёл, принять деформацию горячего газохода.', who:'Проектировщик или генеральный подрядчик станции, изготовитель котла-утилизатора, служба ремонта электростанции.', queries:['ремонт парогазовой установки и котла-утилизатора', 'выхлопной диффузор газовой турбины', 'тканевый компенсатор котла-утилизатора'], questions:['Какова модель газовой турбины и схема станции?', 'Каковы расход, температура и давление выхлопа?', 'Нужен металлический или тканевый узел?'], alert:'Не называть все выхлопные компенсаторы металлическими сильфонными.'},
+      {id:'marine', n:'06', title:'Судовые установки', category:'industry', categoryLabel:'Транспорт · судовой выхлоп', image:'assets/06-marine-photo.png', alt:'Судовая турбокомпрессорная установка и пример компенсатора', place:'Выход турбокомпрессора главного двигателя, газоход дизель-генератора, вход или выход скруббера либо котла-утилизатора.', need:'Вибрация, тепловое расширение и деформации корпуса судна.', who:'Технический менеджер флота, верфь или судовой сервис; для модернизации — проектировщик и генеральный подрядчик.', queries:['доковый ремонт + модель двигателя', 'модернизация судового скруббера', 'судовой газоход замена'], questions:['Каковы марка, модель и серийный номер двигателя?', 'Это главный или вспомогательный двигатель?', 'Какое классификационное общество одобряет судно?'], alert:'Не обещать судовое применение без одобрения конкретного места.'},
+      {id:'compressor', n:'07', title:'Компрессорное оборудование', category:'industry', categoryLabel:'Нефтегаз · компрессорные установки', image:'assets/07-compressor-photo.png', alt:'Поршневая компрессорная установка: оранжевым выделена зона патрубков и пульсационных ёмкостей', place:'Всасывающая и нагнетательная обвязка, межступенчатые линии; отдельно — выхлоп газового привода.', need:'Тепловые перемещения при рассчитанной динамике и допустимых нагрузках на патрубки.', who:'Сборщик компрессорной установки, проектировщик, генеральный подрядчик или оператор компрессорной станции.', queries:['компрессорная станция реконструкция', 'поршневой компрессор ремонт', 'обвязка компрессора проект'], questions:['Каковы тип, модель и число ступеней?', 'Кто выполнял акустический и механический расчёт?', 'Запрещает ли изготовитель применять гибкий узел в этом месте?'], alert:'Не путать пульсационный буфер с компенсатором и не обещать снижение вибрации без расчёта.'},
+      {id:'cryo', n:'08', title:'Криогенное оборудование', category:'special', categoryLabel:'Спецсреды · сжиженные газы', image:'assets/08-cryogenic-photo.png', alt:'Плавучий терминал сжиженного природного газа и подтверждённые криогенные сильфонные компенсаторы', place:'Линии между резервуаром, насосом и испарителем; грузовая система плавучего терминала или судна для перевозки сжиженного газа; криогенные стенды.', need:'Тепловая усадка, монтажные движения и деформации корпуса при очень низкой температуре.', who:'Проектировщик, генеральный подрядчик, оператор терминала сжиженного природного газа, верфь, судовладелец или изготовитель криогенного стенда.', queries:['расширение терминала сжиженного природного газа', 'ремонт плавучего газового терминала', 'закупка криогенного трубопровода'], questions:['Какова точная среда и минимальная температура?', 'Нужна ли кислородная очистка?', 'По каким нормам и кем должно быть одобрено изделие?'], alert:'Не считать нержавеющую сталь достаточным обоснованием криогенной пригодности.'},
+      {id:'vacuum', n:'09', title:'Вакуумное оборудование', category:'special', categoryLabel:'Спецсреды · вакуум', image:'assets/09-vacuum-photo.png', alt:'Вакуумный насос Pfeiffer Vacuum и сильфон герметичного линейного ввода', place:'Сильфон штока клапана, линейный или угловой ввод камеры, гофрированная линия перед вакуумным насосом.', need:'Герметично передать движение или ослабить передачу внешней вибрации.', who:'Изготовитель вакуумной камеры или насоса, интегратор, лаборатория либо сервис камеры.', queries:['модернизация вакуумной камеры', 'замена герметичного сильфонного ввода', 'вакуумная установка модернизация'], questions:['Каков диапазон вакуума и тип фланца?', 'Есть ли прогрев и какова температура?', 'Каковы требования к герметичности, ходу и числу циклов?'], alert:'Не называть любой вакуумный сильфон тепловым компенсатором.'}
+    ];
+
+    const sectorList = document.getElementById('sectorList');
+    const detail = {
+      image: document.getElementById('sectorImage'), category: document.getElementById('sectorCategory'),
+      title: document.getElementById('sectorTitle'), place: document.getElementById('sectorPlace'),
+      need: document.getElementById('sectorNeed'), who: document.getElementById('sectorWho'),
+      queries: document.getElementById('sectorQueries'), questions: document.getElementById('sectorQuestions'),
+      alert: document.getElementById('sectorAlert')
+    };
+
+    function listItems(items) { return items.map(item => `<li>${item}</li>`).join(''); }
+    function showSector(id, focus = false) {
+      const sector = sectors.find(item => item.id === id) || sectors[0];
+      detail.image.src = sector.image; detail.image.alt = sector.alt;
+      detail.category.textContent = sector.categoryLabel; detail.title.textContent = sector.title;
+      detail.place.textContent = sector.place; detail.need.textContent = sector.need; detail.who.textContent = sector.who;
+      detail.queries.innerHTML = listItems(sector.queries); detail.questions.innerHTML = listItems(sector.questions);
+      detail.alert.textContent = sector.alert;
+      document.querySelectorAll('.sector-button').forEach(button => button.setAttribute('aria-current', String(button.dataset.id === sector.id)));
+      if (focus) document.querySelector('.atlas-detail').focus?.();
+    }
+    sectors.forEach(sector => {
+      const button = document.createElement('button');
+      button.className = 'sector-button'; button.dataset.id = sector.id; button.dataset.category = sector.category;
+      button.innerHTML = `<span>${sector.n}</span><span>${sector.title}</span>`;
+      button.addEventListener('click', () => showSector(sector.id));
+      sectorList.appendChild(button);
+    });
+    showSector('gpu');
+
+    document.querySelectorAll('.filter-button').forEach(button => {
+      button.addEventListener('click', () => {
+        const filter = button.dataset.filter;
+        document.querySelectorAll('.filter-button').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+        const visible = sectors.filter(sector => filter === 'all' || sector.category === filter);
+        document.querySelectorAll('.sector-button').forEach(item => { item.hidden = filter !== 'all' && item.dataset.category !== filter; });
+        const current = document.querySelector('.sector-button[aria-current="true"]');
+        if (!current || current.hidden) showSector(visible[0].id);
+      });
+    });
+
+    const tabs = [...document.querySelectorAll('[role="tab"]')];
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => activateTab(tab));
+      tab.addEventListener('keydown', event => {
+        if (!['ArrowRight','ArrowLeft','ArrowDown','ArrowUp'].includes(event.key)) return;
+        event.preventDefault();
+        const delta = ['ArrowRight','ArrowDown'].includes(event.key) ? 1 : -1;
+        const next = tabs[(index + delta + tabs.length) % tabs.length]; activateTab(next); next.focus();
+      });
+    });
+    function activateTab(active) {
+      tabs.forEach(tab => { const selected = tab === active; tab.setAttribute('aria-selected', String(selected)); document.getElementById(tab.getAttribute('aria-controls')).hidden = !selected; });
+    }
+
+    const checks = [...document.querySelectorAll('.check-item input')];
+    function updateProgress() {
+      const done = checks.filter(item => item.checked).length;
+      document.getElementById('checkProgress').textContent = `${done} из ${checks.length}`;
+      document.getElementById('progressFill').style.width = `${done / checks.length * 100}%`;
+    }
+    checks.forEach(item => item.addEventListener('change', updateProgress));
+
+    const form = document.getElementById('briefForm');
+    const output = document.getElementById('briefText');
+    const status = document.getElementById('briefStatus');
+    const field = name => (new FormData(form).get(name) || '').trim();
+    const value = name => field(name) || 'Не предоставлено.';
+    function updateBrief() {
+      const core = ['equipment','place','task','medium','temperature','pressure','movement','geometry'];
+      const filled = core.filter(name => field(name)).length;
+      const isReady = filled >= 7 && field('equipment') && field('place') && field('task');
+      status.textContent = isReady ? 'Готово к первой проверке' : `Неполно: ${filled}/8`;
+      status.classList.toggle('ready', isReady);
+      output.textContent = `КАРТОЧКА ЗАПРОСА
+
+Компания: ${value('company')}
+Контакт: ${value('contact')}
+Оборудование: ${value('equipment')}
+Модель / серийный номер: ${value('model')}
+Место узла: ${value('place')}
+Задача: ${value('task')}
+Срок и количество: ${value('deadline')}
+
+РАБОЧИЕ УСЛОВИЯ
+Среда: ${value('medium')}
+Температура: ${value('temperature')}
+Давление / вакуум: ${value('pressure')}
+Движения / циклы / вибрация: ${value('movement')}
+
+ГЕОМЕТРИЯ И ДОКУМЕНТЫ
+Размеры и присоединения: ${value('geometry')}
+Получено: ${value('documents')}
+Не хватает / ответственный / срок: ${value('missing')}
+
+Ограничение: совместимость, конструкция, материал и ресурс не подтверждены до инженерной проверки.`;
+    }
+    form.addEventListener('input', updateBrief); form.addEventListener('change', updateBrief); updateBrief();
+    document.getElementById('copyBrief').addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(output.textContent); document.getElementById('copyNote').textContent = 'Карточка скопирована.'; }
+      catch { document.getElementById('copyNote').textContent = 'Браузер запретил копирование. Выделите текст вручную.'; }
+    });
+    document.getElementById('clearBrief').addEventListener('click', () => { form.reset(); updateBrief(); document.getElementById('copyNote').textContent = ''; });
+
+    const navLinks = [...document.querySelectorAll('.nav a')];
+    const observed = navLinks.map(link => document.querySelector(link.getAttribute('href'))).filter(Boolean);
+    const observer = new IntersectionObserver(entries => {
+      const visible = entries.filter(entry => entry.isIntersecting).sort((a,b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (!visible) return;
+      navLinks.forEach(link => link.setAttribute('aria-current', String(link.getAttribute('href') === `#${visible.target.id}`)));
+    }, {rootMargin:'-20% 0px -65% 0px', threshold:[0,.25,.5]});
+    observed.forEach(section => observer.observe(section));
+  </script>
+</body>
+</html>
